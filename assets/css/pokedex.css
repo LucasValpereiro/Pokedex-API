@@ -98,6 +98,7 @@ background-color: #f9aec7
 .pokemon .name {
     color: #fff;
     margin-bottom: 0.25rem;
+    text-transform: capitalize;
 }
 
 .pokemon .detail {
@@ -105,6 +106,7 @@ background-color: #f9aec7
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    text-transform: capitalize;
 }
 
 .pokemon .detail .types {
@@ -119,8 +121,30 @@ background-color: #f9aec7
     margin: 0.25rem 0;
     font-size: 0.625rem;
     border-radius: 1rem;
+    text-align: center;
+    filter:brightness(1.1);
 }
 
+.pagination {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.pagination button {
+    margin: 0.25rem 0;
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+    color: #fff;
+    background-color: #6c79db;
+    border: none;
+    border-radius: 1rem;
+
+}
 
 .pokemon .detail img{
     max-width: 100%;
