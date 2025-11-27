@@ -6,6 +6,10 @@
     list-style: none;
 }
 
+h1 {
+    text-align: center;
+}
+
 
 .normal { 
 background-color: #a6a877
