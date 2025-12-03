@@ -1,14 +1,15 @@
 const pokemonList = document.getElementById("pokemonList");
 const loadMoreButton = document.getElementById("loadMoreButton");
-const searchInput = document.getElementById("searchInput"); // Nova const para buscar o ID
-
+const searchInput = document.getElementById("searchInput");
 
 const maxRecords = 151;
 const limit = 10;
 let offset = 0;
-let allPokemons = []; // Armazena os pokemons carregados
+let allPokemons = [];
 
-// Função nova para dar retorno e não repetir
+let currentTypeFilter = "all";
+
+
 function convertPokemonToLi(pokemon) {
   return ` <li class="pokemon ${pokemon.type}"> 
           <span class="number">${pokemon.number}</span>
@@ -25,47 +26,81 @@ function convertPokemonToLi(pokemon) {
           alt="${pokemon.name}">  
           </div>
         </li>
-        `
+        `;
 }
 
 function loadPokemonItems(offset, limit) {
   pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
-    allPokemons = allPokemons.concat(pokemons); // Ir adicionando a busca dos pokemons conforme são exibidos mais
-    const newHtml = pokemons.map(convertPokemonToLi).join('');
-    pokemonList.innerHTML += newHtml
-});
+    allPokemons = allPokemons.concat(pokemons);
+    const newHtml = pokemons.map(convertPokemonToLi).join("");
+    pokemonList.innerHTML += newHtml;
+  });
 }
 
-// Novo filtro para exibir o Pokemon
 function filterPokemons(searchTerm) {
-  const filtered = allPokemons.filter((pokemon) =>
-  pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
-pokemonList.innerHTML = filtered.map(convertPokemonToLi).join('');
+  let pokemonsToFilter = allPokemons;
+
+  if (currentTypeFilter !== "all") {
+    pokemonsToFilter = allPokemons.filter((pokemon) =>
+      pokemon.types.includes(currentTypeFilter)
+    );
+  }
+
+  const filtered = pokemonsToFilter.filter((pokemon) =>
+    pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  // Mostra na tela
+  pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
 }
 
-// Evento para busca
-searchInput.addEventListener('input', (event) => {
+function filterByType(type) {
+
+  if (type === "all") {
+    pokemonList.innerHTML = allPokemons.map(convertPokemonToLi).join("");
+    return;
+  }
+
+  const filtered = allPokemons.filter((pokemon) => 
+    pokemon.types.includes(type)
+  );
+
+  pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
+}
+
+searchInput.addEventListener("input", (event) => {
   const searchTerm = event.target.value;
   filterPokemons(searchTerm);
 });
 
-loadPokemonItems(offset, limit)
+const filterButtons = document.querySelectorAll(".filter-btn");
 
-loadMoreButton.addEventListener('click', () => {
-  searchInput.value = '';
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const type = button.getAttribute("data-type");
+    currentTypeFilter = type;
+    filterButtons.forEach((btn) => btn.classList.remove("active"));
+    button.classList.add("active");
+    searchInput.value = "";
+    filterByType(type);
+  });
+});
 
-  offset += limit
+loadPokemonItems(offset, limit);
 
-  const qtdRecordsWithNextPage = offset + limit
+loadMoreButton.addEventListener("click", () => {
+  searchInput.value = "";
 
-  if(qtdRecordsWithNextPage >= maxRecords) {
-    const newLimit = maxRecords - offset
-    loadPokemonItems(offset, newLimit)
+  offset += limit;
 
-    loadMoreButton.parentElement.removeChild(loadMoreButton)
-  } else {    
-    loadPokemonItems(offset, limit)
+  const qtdRecordsWithNextPage = offset + limit;
+
+  if (qtdRecordsWithNextPage >= maxRecords) {
+    const newLimit = maxRecords - offset;
+    loadPokemonItems(offset, newLimit);
+
+    loadMoreButton.parentElement.removeChild(loadMoreButton);
+  } else {
+    loadPokemonItems(offset, limit);
   }
-
-})
+});
