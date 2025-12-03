@@ -195,4 +195,111 @@ background-color: #f9aec7
     box-shadow: 0 0 10px rgba(108, 121, 219, 0.3);
 }
 
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 0 16px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.filter-btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.filter-btn[data-type="all"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.filter-btn[data-type="grass"] {
+    background: linear-gradient(135deg, #77c850 0%, #4a9d2f 100%);
+}
+
+.filter-btn[data-type="fire"] {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.filter-btn[data-type="water"] {
+    background: linear-gradient(135deg, #54a0ff 0%, #2e86de 100%);
+}
+
+.filter-btn[data-type="electric"] {
+    background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+}
+
+.filter-btn[data-type="poison"] {
+    background: linear-gradient(135deg, #a040a0 0%, #7d2a7d 100%);
+}
+
+.filter-btn[data-type="ground"] {
+    background: linear-gradient(135deg, #dfbf69 0%, #c49f4a 100%);
+}
+
+.filter-btn[data-type="psychic"] {
+    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+}
+
+.filter-btn[data-type="normal"] {
+    background: linear-gradient(135deg, #a6a877 0%, #8a8a5c 100%);
+}
+
+.filter-btn[data-type="ice"] {
+    background: linear-gradient(135deg, #98d5d7 0%, #6fb8ba 100%);
+}
+
+.filter-btn[data-type="flying"] {
+    background: linear-gradient(135deg, #a98ff0 0%, #8b6fd1 100%);
+}
+
+.filter-btn[data-type="fighting"] {
+    background: linear-gradient(135deg, #bf3029 0%, #9a2520 100%);
+}
+
+.filter-btn[data-type="dark"] {
+    background: linear-gradient(135deg, #725847 0%, #5a4536 100%);
+}
+
+.filter-btn[data-type="rock"] {
+    background: linear-gradient(135deg, #b8a137 0%, #9a862d 100%);
+}
+
+.filter-btn[data-type="bug"] {
+    background: linear-gradient(135deg, #a8b720 0%, #8a9a1a 100%);
+}
+
+.filter-btn[data-type="ghost"] {
+    background: linear-gradient(135deg, #6e5896 0%, #574477 100%);
+}
+
+.filter-btn[data-type="steel"] {
+    background: linear-gradient(135deg, #b9b7cf 0%, #9592a8 100%);
+}
+
+.filter-btn[data-type="dragon"] {
+    background: linear-gradient(135deg, #6f38f6 0%, #5526c4 100%);
+}
+
+.filter-btn[data-type="fairy"] {
+    background: linear-gradient(135deg, #f9aec7 0%, #f78ba8 100%);
+}
+
 
