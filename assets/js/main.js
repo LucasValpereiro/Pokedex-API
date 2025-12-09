@@ -9,7 +9,6 @@ let allPokemons = [];
 
 let currentTypeFilter = "all";
 
-
 function convertPokemonToLi(pokemon) {
   return ` <li class="pokemon ${pokemon.type}"> 
           <span class="number">${pokemon.number}</span>
@@ -61,57 +60,84 @@ async function searchPokemonByName(name) {
   }
 }
 
+async function getAllPokemonsByType(type) {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    // Filtrar apenas os primeiros 151 pokémons
+    const pokemonPromises = data.pokemon
+      .filter(p => {
+        const id = parseInt(p.pokemon.url.split('/').slice(-2, -1)[0]);
+        return id <= maxRecords;
+      })
+      .map(async (p) => {
+        const id = parseInt(p.pokemon.url.split('/').slice(-2, -1)[0]);
+        const pokemonData = await fetch(p.pokemon.url).then(res => res.json());
+        
+        const pokemon = new Pokemon();
+        pokemon.number = pokemonData.id;
+        pokemon.name = pokemonData.name;
+        const types = pokemonData.types.map((typeSlot) => typeSlot.type.name);
+        pokemon.types = types;
+        pokemon.type = types[0];
+        pokemon.photo = pokemonData.sprites.other.dream_world.front_default;
+        
+        return pokemon;
+      });
+    
+    const pokemons = await Promise.all(pokemonPromises);
+    return pokemons.sort((a, b) => a.number - b.number);
+    
+  } catch (error) {
+    console.error('Erro ao buscar pokémons por tipo:', error);
+    return [];
+  }
+}
+
 async function filterPokemons(searchTerm) {
   if (!searchTerm.trim()) {
     if (currentTypeFilter !== "all") {
-      filterByType(currentTypeFilter);
+      await filterByType(currentTypeFilter);
     } else {
       pokemonList.innerHTML = allPokemons.map(convertPokemonToLi).join("");
     }
     return;
   }
 
-  let pokemonsToFilter = allPokemons;
-
-  if (currentTypeFilter !== "all") {
-    pokemonsToFilter = allPokemons.filter((pokemon) =>
-      pokemon.types.includes(currentTypeFilter)
-    );
-  }
-
-  const filtered = pokemonsToFilter.filter((pokemon) =>
-    pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const apiPokemon = await searchPokemonByName(searchTerm);
   
-  if (filtered.length > 0) {
-    pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
-  } else {
-    const apiPokemon = await searchPokemonByName(searchTerm);
-    
-    if (apiPokemon) {
-      if (currentTypeFilter === "all" || apiPokemon.types.includes(currentTypeFilter)) {
-        pokemonList.innerHTML = convertPokemonToLi(apiPokemon);
-      } else {
-        pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum Pokémon encontrado com esse filtro</li>';
-      }
+  if (apiPokemon) {
+    if (currentTypeFilter === "all" || apiPokemon.types.includes(currentTypeFilter)) {
+      pokemonList.innerHTML = convertPokemonToLi(apiPokemon);
     } else {
-      pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Pokémon não encontrado</li>';
+      pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum Pokémon encontrado com esse filtro</li>';
     }
+  } else {
+    pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Pokémon não encontrado</li>';
   }
 }
 
-function filterByType(type) {
-
+async function filterByType(type) {
   if (type === "all") {
     pokemonList.innerHTML = allPokemons.map(convertPokemonToLi).join("");
     return;
   }
 
-  const filtered = allPokemons.filter((pokemon) => 
-    pokemon.types.includes(type)
-  );
-
-  pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
+  pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Carregando...</li>';
+  
+  const pokemons = await getAllPokemonsByType(type);
+  
+  if (pokemons.length > 0) {
+    pokemonList.innerHTML = pokemons.map(convertPokemonToLi).join("");
+  } else {
+    pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum Pokémon encontrado</li>';
+  }
 }
 
 searchInput.addEventListener("input", (event) => {
@@ -122,13 +148,13 @@ searchInput.addEventListener("input", (event) => {
 const filterButtons = document.querySelectorAll(".filter-btn");
 
 filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     const type = button.getAttribute("data-type");
     currentTypeFilter = type;
     filterButtons.forEach((btn) => btn.classList.remove("active"));
     button.classList.add("active");
     searchInput.value = "";
-    filterByType(type);
+    await filterByType(type);
   });
 });
 
