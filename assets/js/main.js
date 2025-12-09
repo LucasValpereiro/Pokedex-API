@@ -37,7 +37,40 @@ function loadPokemonItems(offset, limit) {
   });
 }
 
-function filterPokemons(searchTerm) {
+async function searchPokemonByName(name) {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    const pokeDetail = await response.json();
+
+    const pokemon = new Pokemon();
+    pokemon.number = pokeDetail.id;
+    pokemon.name = pokeDetail.name;
+    const types = pokeDetail.types.map((typeSlot) => typeSlot.type.name);
+    pokemon.types = types;
+    pokemon.type = types[0];
+    pokemon.photo = pokeDetail.sprites.other.dream_world.front_default; 
+
+    return pokemon;
+  } catch (erro) {
+    return null;
+  }
+}
+
+async function filterPokemons(searchTerm) {
+  if (!searchTerm.trim()) {
+    if (currentTypeFilter !== "all") {
+      filterByType(currentTypeFilter);
+    } else {
+      pokemonList.innerHTML = allPokemons.map(convertPokemonToLi).join("");
+    }
+    return;
+  }
+
   let pokemonsToFilter = allPokemons;
 
   if (currentTypeFilter !== "all") {
@@ -50,8 +83,21 @@ function filterPokemons(searchTerm) {
     pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // Mostra na tela
-  pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
+  if (filtered.length > 0) {
+    pokemonList.innerHTML = filtered.map(convertPokemonToLi).join("");
+  } else {
+    const apiPokemon = await searchPokemonByName(searchTerm);
+    
+    if (apiPokemon) {
+      if (currentTypeFilter === "all" || apiPokemon.types.includes(currentTypeFilter)) {
+        pokemonList.innerHTML = convertPokemonToLi(apiPokemon);
+      } else {
+        pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Nenhum Pokémon encontrado com esse filtro</li>';
+      }
+    } else {
+      pokemonList.innerHTML = '<li style="grid-column: 1/-1; text-align: center; padding: 2rem;">Pokémon não encontrado</li>';
+    }
+  }
 }
 
 function filterByType(type) {
